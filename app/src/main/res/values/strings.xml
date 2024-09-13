@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">TripTasker</string>
+
+    <!-- Filtros de tarefa -->
+    <string-array name="task_filters">
+        <item>Todas</item>
+        <item>A fazer</item>
+        <item>Em andamento</item>
+        <item>Concluídas</item>
+    </string-array>
+
+    <!-- Status de tarefa -->
+    <string-array name="status_array">
+        <item>A fazer</item>
+        <item>Fazendo</item>
+        <item>Feito</item>
+    </string-array>
+</resources>
