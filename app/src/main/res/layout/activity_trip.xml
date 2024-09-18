@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
@@ -8,6 +7,14 @@
     android:padding="16dp">
 
     <include layout="@layout/header" />
+
+    <TextView
+        android:id="@+id/welcome_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="Olá usuario"
+        android:textSize="18sp" />
 
     <Button
         android:id="@+id/btnAdicionarViagem"
@@ -35,128 +42,23 @@
         android:textColor="@android:color/white"
         android:visibility="gone" />
 
-    <LinearLayout
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewTrips"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:orientation="vertical">
+        android:orientation="vertical" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:background="@drawable/item_background"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:padding="8dp"
-            android:onClick="onTripClicked">
-
-            <TextView
-                android:id="@+id/tvNomeViagemBalneario"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="8dp"
-                android:layout_weight="1"
-                android:gravity="center_vertical"
-                android:text="Balneário Camboriú"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                tools:ignore="DuplicateIds" />
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="8dp"
-                android:contentDescription="Editar"
-                android:gravity="center_vertical"
-                android:src="@drawable/baseline_edit_note_24" />
-
-            <ImageView
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:contentDescription="Foto Buenos Aires"
-                android:scaleType="centerCrop"
-                android:src="@drawable/balneario_camboriu" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:background="@drawable/item_background"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:padding="8dp"
-            android:onClick="onTripClicked">
-
-            <TextView
-                android:id="@+id/tvNomeViagemBuenosAires"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="8dp"
-                android:layout_weight="1"
-                android:gravity="center_vertical"
-                android:text="Viagem a Buenos Aires"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="8dp"
-                android:contentDescription="Editar"
-                android:gravity="center_vertical"
-                android:src="@drawable/baseline_edit_note_24" />
-
-            <ImageView
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:contentDescription="Foto Buenos Aires"
-                android:scaleType="centerCrop"
-                android:src="@drawable/buenos_aires" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:background="@drawable/item_background"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:padding="8dp">
-
-            <TextView
-                android:id="@+id/tvNomeViagemItalia"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="8dp"
-                android:layout_weight="1"
-                android:gravity="center_vertical"
-                android:text="Itália 2025"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="8dp"
-                android:contentDescription="Editar"
-                android:gravity="center_vertical"
-                android:src="@drawable/baseline_edit_note_24" />
-
-            <ImageView
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:contentDescription="Foto Italia"
-                android:scaleType="centerCrop"
-                android:src="@drawable/italia" />
-
-        </LinearLayout>
-
-    </LinearLayout>
+    <Button
+        android:id="@+id/btnLogout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="130dp"
+        android:layout_marginBottom="20dp"
+        android:backgroundTint="#009CA6"
+        android:padding="12dp"
+        android:onClick="logoutClick"
+        android:text="Sair"
+        android:textColor="@android:color/white"
+        android:textSize="16sp" />
 </LinearLayout>

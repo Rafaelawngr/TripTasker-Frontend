@@ -1,31 +1,30 @@
 package com.triptasker.myapplication;
 
+import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
-import android.widget.EditText;
-import android.widget.AdapterView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.app.DatePickerDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import java.util.Calendar;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class TasksActivity extends AppCompatActivity {
     private RecyclerView recyclerViewTasks;
     private TaskAdapter taskAdapter;
     private List<Task> taskList;
-
     private Button btnAddTask, btnSaveTask;
     private LinearLayout taskForm;
 

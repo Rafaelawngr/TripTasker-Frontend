@@ -1,92 +1,196 @@
 package com.triptasker.myapplication;
 
-import androidx.appcompat.app.AppCompatActivity;
-
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.view.View;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
+
+import java.lang.reflect.Type;
+import java.util.List;
+
+import cz.msebera.android.httpclient.Header;
+
 public class TripActivity extends AppCompatActivity {
+
+    private TextView welcome;
     private TextView headerTitle;
     private ImageView navigationIcon;
-    private Button btnAdicionarViagem, btnCriarViagem;
+    private Button btnAdicionarViagem, btnCriarViagem, btnLogout;
     private EditText etNomeViagem;
+    private SharedPreferences preferences;
+    private AsyncHttpClient client;
+    private RecyclerView recyclerViewTrips;
+    private TripAdapter tripAdapter;
+    private List<Trip> tripList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trip);
 
+        welcome = findViewById(R.id.welcome_title);
         headerTitle = findViewById(R.id.header_title);
         navigationIcon = findViewById(R.id.icon_navigation);
         navigationIcon.setImageResource(R.drawable.baseline_arrow_back_ios_24);
         btnAdicionarViagem = findViewById(R.id.btnAdicionarViagem);
         etNomeViagem = findViewById(R.id.etNomeViagem);
         btnCriarViagem = findViewById(R.id.btnCriarViagem);
+        btnLogout = findViewById(R.id.btnLogout);
 
+        recyclerViewTrips = findViewById(R.id.recyclerViewTrips);
+        recyclerViewTrips.setLayoutManager(new LinearLayoutManager(this));
 
-        navigationIcon.setOnClickListener(v -> {
-            finish();
+        tripAdapter = new TripAdapter(tripList, new TripAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(Trip trip) {
+                Intent intent = new Intent(TripActivity.this, TasksActivity.class);
+                intent.putExtra("tripId", trip.getId());
+                intent.putExtra("tripName", trip.getTitle());
+                startActivity(intent);
+            }
         });
+        recyclerViewTrips.setAdapter(tripAdapter);
+
 
         btnAdicionarViagem.setOnClickListener(v -> {
             btnAdicionarViagem.setVisibility(View.GONE);
-
             etNomeViagem.setVisibility(View.VISIBLE);
             btnCriarViagem.setVisibility(View.VISIBLE);
         });
 
-
         btnCriarViagem.setOnClickListener(v -> {
             String nomeViagem = etNomeViagem.getText().toString().trim();
-
             if (!nomeViagem.isEmpty()) {
+                AsyncHttpClient client = new AsyncHttpClient();
+                RequestParams params = new RequestParams();
+                params.put("Action", "create");
+                params.put("Title", nomeViagem);
+                client.post("http://10.0.2.2:45455/ApiTrip.aspx", params, new AsyncHttpResponseHandler() {
+                    @Override
+                    public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                        Toast.makeText(TripActivity.this, "Viagem criada com sucesso!", Toast.LENGTH_SHORT).show();
+                        etNomeViagem.setText("");
+                        loadTrips(); // Carregar a lista atualizada de viagens
+                    }
 
-                etNomeViagem.setVisibility(View.GONE);
-                btnCriarViagem.setVisibility(View.GONE);
-
-                btnAdicionarViagem.setVisibility(View.VISIBLE);
-
-                etNomeViagem.setText("");
-
-                Toast.makeText(this, "Viagem '" + nomeViagem + "' adicionada!", Toast.LENGTH_SHORT).show();
+                    @Override
+                    public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                        String response = new String(responseBody);
+                        Toast.makeText(TripActivity.this, "Erro: " + response, Toast.LENGTH_SHORT).show();
+                    }
+                });
             } else {
                 Toast.makeText(this, "Por favor, insira o nome da viagem", Toast.LENGTH_SHORT).show();
             }
         });
+
+        navigationIcon.setOnClickListener(v -> finish());
+
+        preferences = getSharedPreferences("Shared", Context.MODE_PRIVATE);
+
+        client = new AsyncHttpClient();
+
+        loadTrips();
     }
 
-    public void onTripClicked(View view) {
-        try {
-            String tripName = "";
-            if (view.findViewById(R.id.tvNomeViagemBalneario) != null) {
-                tripName = ((TextView) view.findViewById(R.id.tvNomeViagemBalneario)).getText().toString();
-            } else if (view.findViewById(R.id.tvNomeViagemBuenosAires) != null) {
-                tripName = ((TextView) view.findViewById(R.id.tvNomeViagemBuenosAires)).getText().toString();
-            } else if (view.findViewById(R.id.tvNomeViagemItalia) != null) {
-                tripName = ((TextView) view.findViewById(R.id.tvNomeViagemItalia)).getText().toString();
+    private void loadTrips() {
+        client.get("http://10.0.2.2:45455/ApiTrip.aspx", new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                String response = new String(responseBody);
+                Gson gson = new Gson();
+                Type tripListType = new TypeToken<List<Trip>>() {}.getType();
+                tripList = gson.fromJson(response, tripListType);
+                updateTripsUI(tripList);
             }
-            int tripId = getTripIdByName(tripName);
 
-            Intent intent = new Intent(this, TasksActivity.class);
-            intent.putExtra("tripId", tripId);
-            intent.putExtra("tripName", tripName);
-            startActivity(intent);
-        } catch (Exception e) {
-            Log.e("TripActivity", "Erro ao clicar na viagem: ", e);
-        }
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                Log.e("TripActivity", "Failed to load trips", error);
+                Toast.makeText(TripActivity.this, "Erro ao carregar viagens", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
-    private int getTripIdByName(String tripName) {
-        if (tripName.equals("Balneário Camboriú")) return 1;
-        if (tripName.equals("Viagem a Buenos Aires")) return 2;
-        if (tripName.equals("Itália 2025")) return 3;
-        return -1;
+    private void updateTripsUI(List<Trip> trips) {
+        TripAdapter.OnItemClickListener listener = new TripAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(Trip trip) {
+                Intent intent = new Intent(TripActivity.this, TasksActivity.class);
+                intent.putExtra("tripId", trip.getId());
+                intent.putExtra("tripName", trip.getTitle());
+                startActivity(intent);
+            }
+        };
+
+        tripAdapter = new TripAdapter(trips, listener);
+        recyclerViewTrips.setAdapter(tripAdapter);
+        tripAdapter.notifyDataSetChanged();
+    }
+
+
+    public void editTrip(int tripId, String novoNome) {
+        AsyncHttpClient client = new AsyncHttpClient();
+        RequestParams params = new RequestParams();
+        params.put("Action", "edit");
+        params.put("TripId", tripId);
+        params.put("Title", novoNome);
+        client.post("http://10.0.2.2:45455/ApiTrip.aspx", params, new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                Toast.makeText(TripActivity.this, "Viagem editada com sucesso!", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                String response = new String(responseBody);
+                Toast.makeText(TripActivity.this, "Erro: " + response, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    public void deleteTrip(int tripId) {
+        AsyncHttpClient client = new AsyncHttpClient();
+        RequestParams params = new RequestParams();
+        params.put("Action", "delete");
+        params.put("TripId", tripId);
+        client.post("http://10.0.2.2:45455/ApiTrip.aspx", params, new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                Toast.makeText(TripActivity.this, "Viagem excluída com sucesso!", Toast.LENGTH_SHORT).show();
+                loadTrips(); // Recarregar a lista de viagens após exclusão
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                String response = new String(responseBody);
+                Toast.makeText(TripActivity.this, "Erro: " + response, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+    public void logoutClick(View view) {
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString("user", "");
+        editor.putBoolean("session", false);
+        editor.apply();
+
+        finishAffinity();
     }
 }
