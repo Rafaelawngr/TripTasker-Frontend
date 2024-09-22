@@ -52,17 +52,4 @@
         android:layout_marginTop="16dp"
         android:orientation="vertical"
         android:visibility="visible"/>
-
-    <Button
-        android:id="@+id/btnLogout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="100dp"
-        android:layout_marginBottom="20dp"
-        android:backgroundTint="#009CA6"
-        android:padding="12dp"
-        android:onClick="logoutClick"
-        android:text="Sair"
-        android:textColor="@android:color/white"
-        android:textSize="16sp" />
 </LinearLayout>

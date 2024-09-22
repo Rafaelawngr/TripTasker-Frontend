@@ -23,8 +23,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
     public void updateTasks(List<Task> tasks) {
         taskList.clear();
         for (Task task : tasks) {
-            // Verifique se o task e o campo name não são nulos
-            if (task != null && task.getName() != null) {
+            if (task != null && task.getTitle() != null) {
                 taskList.add(task);
             }
         }
@@ -43,25 +42,31 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
     public void onBindViewHolder(@NonNull TaskViewHolder holder, int position) {
         Task task = taskList.get(position);
 
-        holder.tvTaskName.setText(task.getName() != null ? task.getName() : "Nome não disponível");
+        holder.tvTaskName.setText(task.getTitle() != null ? task.getTitle() : "Nome não disponível");
         holder.tvTaskDescription.setText(task.getDescription() != null ? task.getDescription() : "Sem descrição");
-        holder.tvTaskDate.setText(task.getDate() != null ? task.getDate() : "Sem data");
-        holder.tvTaskStatus.setText(task.getStatus() != null ? task.getStatus() : "Sem status");
+        holder.tvTaskDate.setText(task.getDueDate() != null ? task.getDueDate() : "Sem data");
 
-        switch (task.getStatus() != null ? task.getStatus() : "") {
-            case "A Fazer":
+        // Mapeando status
+        String statusText;
+        switch (task.getStatus()) {
+            case 0:
+                statusText = "A Fazer";
                 holder.tvTaskStatus.setTextColor(Color.RED);
                 break;
-            case "Fazendo":
+            case 1:
+                statusText = "Fazendo";
                 holder.tvTaskStatus.setTextColor(Color.YELLOW);
                 break;
-            case "Feito":
+            case 2:
+                statusText = "Feito";
                 holder.tvTaskStatus.setTextColor(Color.GREEN);
                 break;
             default:
+                statusText = "Sem status";
                 holder.tvTaskStatus.setTextColor(Color.BLACK);
                 break;
         }
+        holder.tvTaskStatus.setText(statusText);
     }
 
     @Override

@@ -2,22 +2,17 @@ package com.triptasker.myapplication;
 
 public class Task {
     private int taskId;
-    private String name;
+    private String title;
     private String description;
-    private String date;
-    private String status;
+    private String dueDate;
+    private int status;
 
-    public Task(int taskId, String name, String description, String date, String status) {
-        this.taskId = taskId;
-        this.name = name;
-        this.description = description;
-        this.date = date;
-        this.status = status;
-    }
+    public Task() {}
 
     public int getTaskId() { return taskId; }
-    public String getName() { return name; }
+    public String getTitle() { return title; }
     public String getDescription() { return description; }
-    public String getDate() { return date; }
-    public String getStatus() { return status; }
+    public String getDueDate() { return dueDate; }
+    public int getStatus() { return status; }
 }
+

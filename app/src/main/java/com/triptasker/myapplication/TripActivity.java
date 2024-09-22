@@ -32,7 +32,7 @@ import cz.msebera.android.httpclient.Header;
 public class TripActivity extends AppCompatActivity {
     private TextView welcome, headerTitle, tvNomeViagem;
     private ImageView navigationIcon;
-    private Button btnAdicionarViagem, btnCriarViagem, btnLogout;
+    private Button btnAdicionarViagem, btnCriarViagem;
     private EditText etNomeViagem;
     private SharedPreferences preferences;
     private AsyncHttpClient client;
@@ -53,7 +53,6 @@ public class TripActivity extends AppCompatActivity {
         etNomeViagem = findViewById(R.id.etNomeViagem);
         tvNomeViagem = findViewById(R.id.tvNomeViagem);
         btnCriarViagem = findViewById(R.id.btnCriarViagem);
-        btnLogout = findViewById(R.id.btnLogout);
 
         recyclerViewTrips = findViewById(R.id.recyclerViewTrips);
         recyclerViewTrips.setLayoutManager(new LinearLayoutManager(this));
@@ -158,16 +157,6 @@ public class TripActivity extends AppCompatActivity {
                 Toast.makeText(TripActivity.this, "Erro: " + response, Toast.LENGTH_SHORT).show();
             }
         });
-    }
-
-
-    public void logoutClick(View view) {
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putString("user", "");
-        editor.putBoolean("session", false);
-        editor.apply();
-
-        finishAffinity();
     }
 }
 
