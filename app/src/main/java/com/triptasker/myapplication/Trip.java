@@ -1,16 +1,23 @@
 package com.triptasker.myapplication;
 
+import com.google.gson.annotations.SerializedName;
+
 public class Trip {
+    @SerializedName("TripId")
     private int id;
+
+    @SerializedName("Title")
     private String title;
 
-    // Construtor com parâmetros
+    public Trip() {
+        // Construtor vazio para Gson
+    }
+
     public Trip(int id, String title) {
         this.id = id;
         this.title = title;
     }
 
-    // Getters e Setters
     public int getId() {
         return id;
     }

@@ -17,20 +17,20 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
 import cz.msebera.android.httpclient.Header;
 
 public class TripActivity extends AppCompatActivity {
-
-    private TextView welcome;
-    private TextView headerTitle;
+    private TextView welcome, headerTitle, tvNomeViagem;
     private ImageView navigationIcon;
     private Button btnAdicionarViagem, btnCriarViagem, btnLogout;
     private EditText etNomeViagem;
@@ -38,7 +38,7 @@ public class TripActivity extends AppCompatActivity {
     private AsyncHttpClient client;
     private RecyclerView recyclerViewTrips;
     private TripAdapter tripAdapter;
-    private List<Trip> tripList;
+    private List<Trip> tripList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,23 +51,27 @@ public class TripActivity extends AppCompatActivity {
         navigationIcon.setImageResource(R.drawable.baseline_arrow_back_ios_24);
         btnAdicionarViagem = findViewById(R.id.btnAdicionarViagem);
         etNomeViagem = findViewById(R.id.etNomeViagem);
+        tvNomeViagem = findViewById(R.id.tvNomeViagem);
         btnCriarViagem = findViewById(R.id.btnCriarViagem);
         btnLogout = findViewById(R.id.btnLogout);
 
         recyclerViewTrips = findViewById(R.id.recyclerViewTrips);
         recyclerViewTrips.setLayoutManager(new LinearLayoutManager(this));
 
-        tripAdapter = new TripAdapter(tripList, new TripAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(Trip trip) {
-                Intent intent = new Intent(TripActivity.this, TasksActivity.class);
-                intent.putExtra("tripId", trip.getId());
-                intent.putExtra("tripName", trip.getTitle());
-                startActivity(intent);
-            }
+        HeaderUtils.setupBackButton(this);
+
+        Intent userIntent = getIntent();
+        String user = userIntent.getStringExtra("usuario");
+
+        welcome.setText("Olá " + user);
+
+        tripAdapter = new TripAdapter(tripList, trip -> {
+            Intent intent = new Intent(TripActivity.this, TasksActivity.class);
+            intent.putExtra("tripId", trip.getId());
+            intent.putExtra("tripName", trip.getTitle());
+            startActivity(intent);
         });
         recyclerViewTrips.setAdapter(tripAdapter);
-
 
         btnAdicionarViagem.setOnClickListener(v -> {
             btnAdicionarViagem.setVisibility(View.GONE);
@@ -82,12 +86,12 @@ public class TripActivity extends AppCompatActivity {
                 RequestParams params = new RequestParams();
                 params.put("Action", "create");
                 params.put("Title", nomeViagem);
-                client.post("http://10.0.2.2:45455/ApiTrip.aspx", params, new AsyncHttpResponseHandler() {
+                client.post("http://10.0.2.2:45457/ApiTrip.aspx", params, new AsyncHttpResponseHandler() {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                         Toast.makeText(TripActivity.this, "Viagem criada com sucesso!", Toast.LENGTH_SHORT).show();
-                        etNomeViagem.setText("");
-                        loadTrips(); // Carregar a lista atualizada de viagens
+                        etNomeViagem.setText("teste");
+                        loadTrips();
                     }
 
                     @Override
@@ -104,21 +108,28 @@ public class TripActivity extends AppCompatActivity {
         navigationIcon.setOnClickListener(v -> finish());
 
         preferences = getSharedPreferences("Shared", Context.MODE_PRIVATE);
-
         client = new AsyncHttpClient();
 
         loadTrips();
     }
 
     private void loadTrips() {
-        client.get("http://10.0.2.2:45455/ApiTrip.aspx", new AsyncHttpResponseHandler() {
+        client.get("http://10.0.2.2:45457/ApiTrip.aspx", new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 String response = new String(responseBody);
-                Gson gson = new Gson();
-                Type tripListType = new TypeToken<List<Trip>>() {}.getType();
-                tripList = gson.fromJson(response, tripListType);
-                updateTripsUI(tripList);
+
+                try {
+                    Gson gson = new Gson();
+                    Type tripListType = new TypeToken<List<Trip>>() {}.getType();
+                    tripList = gson.fromJson(response, tripListType);
+                    Log.d("TripActivity", "Viagens carregadas: " + tripList.size());
+
+                    tripAdapter.updateTrips(tripList);
+
+                } catch (JsonSyntaxException e) {
+                    Toast.makeText(TripActivity.this, "Erro ao processar dados do servidor", Toast.LENGTH_SHORT).show();
+                }
             }
 
             @Override
@@ -129,53 +140,16 @@ public class TripActivity extends AppCompatActivity {
         });
     }
 
-    private void updateTripsUI(List<Trip> trips) {
-        TripAdapter.OnItemClickListener listener = new TripAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(Trip trip) {
-                Intent intent = new Intent(TripActivity.this, TasksActivity.class);
-                intent.putExtra("tripId", trip.getId());
-                intent.putExtra("tripName", trip.getTitle());
-                startActivity(intent);
-            }
-        };
-
-        tripAdapter = new TripAdapter(trips, listener);
-        recyclerViewTrips.setAdapter(tripAdapter);
-        tripAdapter.notifyDataSetChanged();
-    }
-
-
-    public void editTrip(int tripId, String novoNome) {
-        AsyncHttpClient client = new AsyncHttpClient();
-        RequestParams params = new RequestParams();
-        params.put("Action", "edit");
-        params.put("TripId", tripId);
-        params.put("Title", novoNome);
-        client.post("http://10.0.2.2:45455/ApiTrip.aspx", params, new AsyncHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                Toast.makeText(TripActivity.this, "Viagem editada com sucesso!", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                String response = new String(responseBody);
-                Toast.makeText(TripActivity.this, "Erro: " + response, Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
     public void deleteTrip(int tripId) {
         AsyncHttpClient client = new AsyncHttpClient();
         RequestParams params = new RequestParams();
         params.put("Action", "delete");
         params.put("TripId", tripId);
-        client.post("http://10.0.2.2:45455/ApiTrip.aspx", params, new AsyncHttpResponseHandler() {
+        client.post("http://10.0.2.2:45457/ApiTrip.aspx", params, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 Toast.makeText(TripActivity.this, "Viagem excluída com sucesso!", Toast.LENGTH_SHORT).show();
-                loadTrips(); // Recarregar a lista de viagens após exclusão
+                loadTrips();
             }
 
             @Override
@@ -185,6 +159,8 @@ public class TripActivity extends AppCompatActivity {
             }
         });
     }
+
+
     public void logoutClick(View view) {
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString("user", "");
@@ -194,3 +170,4 @@ public class TripActivity extends AppCompatActivity {
         finishAffinity();
     }
 }
+

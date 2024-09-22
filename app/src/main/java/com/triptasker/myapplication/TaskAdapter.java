@@ -19,12 +19,17 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
     public TaskAdapter(List<Task> taskList) {
         this.taskList = taskList;
     }
-    public void updateTasks(List<Task> newTasks) {
+
+    public void updateTasks(List<Task> tasks) {
         taskList.clear();
-        taskList.addAll(newTasks);
+        for (Task task : tasks) {
+            // Verifique se o task e o campo name não são nulos
+            if (task != null && task.getName() != null) {
+                taskList.add(task);
+            }
+        }
         notifyDataSetChanged();
     }
-
 
     @NonNull
     @Override
@@ -37,12 +42,13 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
     @Override
     public void onBindViewHolder(@NonNull TaskViewHolder holder, int position) {
         Task task = taskList.get(position);
-        holder.tvTaskName.setText(task.getName());
-        holder.tvTaskDescription.setText(task.getDescription());
-        holder.tvTaskDate.setText(task.getDate());
-        holder.tvTaskStatus.setText(task.getStatus());
 
-        switch (task.getStatus()) {
+        holder.tvTaskName.setText(task.getName() != null ? task.getName() : "Nome não disponível");
+        holder.tvTaskDescription.setText(task.getDescription() != null ? task.getDescription() : "Sem descrição");
+        holder.tvTaskDate.setText(task.getDate() != null ? task.getDate() : "Sem data");
+        holder.tvTaskStatus.setText(task.getStatus() != null ? task.getStatus() : "Sem status");
+
+        switch (task.getStatus() != null ? task.getStatus() : "") {
             case "A Fazer":
                 holder.tvTaskStatus.setTextColor(Color.RED);
                 break;
@@ -56,8 +62,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
                 holder.tvTaskStatus.setTextColor(Color.BLACK);
                 break;
         }
-
-        // edição e exclusão
     }
 
     @Override

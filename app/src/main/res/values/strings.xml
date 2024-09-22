@@ -15,4 +15,9 @@
         <item>Fazendo</item>
         <item>Feito</item>
     </string-array>
+
+    <string name="trip_name">nome da viagem</string>
+    <string name="edit_trip">Edit Trip</string>
+    <string name="delete_trip">Delete Trip</string>
+    <string name="trip_image_description">Imagem da viagem</string>
 </resources>

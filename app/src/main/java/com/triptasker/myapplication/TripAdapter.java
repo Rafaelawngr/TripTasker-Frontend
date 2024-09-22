@@ -1,31 +1,34 @@
 package com.triptasker.myapplication;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripViewHolder> {
-    private List<Trip> tripList = new ArrayList<>();
+    private List<Trip> tripList;
 
     private final OnItemClickListener listener;
 
-    // Interface para escutar cliques
     public interface OnItemClickListener {
         void onItemClick(Trip trip);
     }
 
-    // Construtor
     public TripAdapter(List<Trip> tripList, OnItemClickListener listener) {
         this.tripList = tripList;
         this.listener = listener;
+    }
+
+    public void updateTrips(List<Trip> trips) {
+        this.tripList.clear();
+        this.tripList.addAll(trips);
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -38,6 +41,8 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripViewHolder
     @Override
     public void onBindViewHolder(@NonNull TripViewHolder holder, int position) {
         Trip trip = tripList.get(position);
+        Log.d("TripAdapter", "Título da Viagem: " + trip.getTitle());
+        holder.tripName.setText(trip.getTitle());
         holder.bind(trip, listener);
     }
 
@@ -48,26 +53,14 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripViewHolder
 
     public static class TripViewHolder extends RecyclerView.ViewHolder {
         private final TextView tripName;
-        private final ImageView tripImage;
-
         public TripViewHolder(@NonNull View itemView) {
             super(itemView);
             tripName = itemView.findViewById(R.id.tvNomeViagem);
-            tripImage = itemView.findViewById(R.id.ivTripImage);
         }
 
         public void bind(final Trip trip, final OnItemClickListener listener) {
             tripName.setText(trip.getTitle());
-            // Defina a imagem usando Glide ou outra biblioteca
-//             Glide.with(itemView.getContext()).load(trip.getImageUrl()).into(tripImage);
-
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    listener.onItemClick(trip);
-                }
-            });
+            itemView.setOnClickListener(v -> listener.onItemClick(trip));
         }
     }
 }
-

@@ -4,6 +4,7 @@
     android:layout_height="wrap_content"
     android:background="@drawable/item_background"
     android:orientation="horizontal"
+    android:layout_margin="8dp"
     android:padding="8dp">
 
     <TextView
@@ -13,26 +14,26 @@
         android:layout_weight="1"
         android:layout_gravity="center_vertical"
         android:layout_marginStart="16dp"
-        android:text="nome da viagem"
         android:textSize="20sp"
         android:textStyle="bold" />
 
     <ImageView
         android:id="@+id/ivEdit"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
         android:layout_marginStart="8dp"
         android:layout_gravity="center_vertical"
-        android:contentDescription="Edit Trip"
+        android:contentDescription="@string/edit_trip"
         android:src="@drawable/ic_edit" />
 
     <ImageView
         android:id="@+id/ivDelete"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
         android:layout_marginStart="8dp"
+        android:onClick="deleteTrip"
         android:layout_gravity="center_vertical"
-        android:contentDescription="Delete Trip"
+        android:contentDescription="@string/delete_trip"
         android:src="@drawable/ic_delete" />
 
     <ImageView
@@ -42,14 +43,7 @@
         android:layout_gravity="center_vertical|end"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
-        android:contentDescription="Imagem da viagem"
+        android:contentDescription="@string/trip_image_description"
         android:scaleType="centerCrop"
         android:src="@drawable/default_image" />
 </LinearLayout>
-
-
-
-
-
-
-
