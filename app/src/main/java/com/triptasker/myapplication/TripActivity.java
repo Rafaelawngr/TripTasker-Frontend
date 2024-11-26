@@ -85,7 +85,7 @@ public class TripActivity extends AppCompatActivity {
                 RequestParams params = new RequestParams();
                 params.put("Action", "create");
                 params.put("Title", nomeViagem);
-                client.post("http://10.0.2.2:45457/ApiTrip.aspx", params, new AsyncHttpResponseHandler() {
+                client.post("http://10.0.2.2:45455/ApiTrip.aspx", params, new AsyncHttpResponseHandler() {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                         Toast.makeText(TripActivity.this, "Viagem criada com sucesso!", Toast.LENGTH_SHORT).show();
@@ -113,7 +113,7 @@ public class TripActivity extends AppCompatActivity {
     }
 
     private void loadTrips() {
-        client.get("http://10.0.2.2:45457/ApiTrip.aspx", new AsyncHttpResponseHandler() {
+        client.get("http://10.0.2.2:45455/ApiTrip.aspx", new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 String response = new String(responseBody);
@@ -144,7 +144,7 @@ public class TripActivity extends AppCompatActivity {
         RequestParams params = new RequestParams();
         params.put("Action", "delete");
         params.put("TripId", tripId);
-        client.post("http://10.0.2.2:45457/ApiTrip.aspx", params, new AsyncHttpResponseHandler() {
+        client.post("http://10.0.2.2:45455/ApiTrip.aspx", params, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 Toast.makeText(TripActivity.this, "Viagem excluída com sucesso!", Toast.LENGTH_SHORT).show();

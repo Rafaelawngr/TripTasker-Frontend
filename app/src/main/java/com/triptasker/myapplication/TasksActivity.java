@@ -131,7 +131,7 @@ public class TasksActivity extends AppCompatActivity {
 
     private void loadTasksForTrip(int tripId) {
         AsyncHttpClient client = new AsyncHttpClient();
-        String url = "http://10.0.2.2:45457/ApiTask.aspx?TripId=" + tripId;
+        String url = "http://10.0.2.2:45455/ApiTask.aspx?TripId=" + tripId;
         client.get(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
@@ -144,15 +144,17 @@ public class TasksActivity extends AppCompatActivity {
                     Type taskListType = new TypeToken<List<Task>>() {}.getType();
                     List<Task> tasks = gson.fromJson(response, taskListType);
 
-                    taskList.clear();
-                    taskList.addAll(tasks);
-                    taskAdapter.notifyDataSetChanged();
+                    if (tasks != null) {
+                        Log.d("Parsed Tasks", tasks.toString());
+                        taskList.clear();
+                        taskList.addAll(tasks);
+                        taskAdapter.notifyDataSetChanged();
 
-                    for (Task task : tasks) {
-                        Log.d("Task Data", "Title: " + task.getTitle() + ", Description: " + task.getDescription() +
-                                ", DueDate: " + task.getDueDate() + ", Status: " + task.getStatus());
+                    } else {
+                        Log.e("TasksActivity", "Lista de tarefas está nula ou vazia.");
                     }
                 } catch (JsonSyntaxException e) {
+                    Log.e("TasksActivity", "Erro ao processar JSON do servidor.", e);
                     Toast.makeText(TasksActivity.this, "Erro ao processar dados do servidor", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -190,7 +192,7 @@ public class TasksActivity extends AppCompatActivity {
         params.put("TripId", tripId);
 
         AsyncHttpClient client = new AsyncHttpClient();
-        client.post("http://10.0.2.2:45457/ApiTask.aspx?TripId=" + tripId, params, new AsyncHttpResponseHandler() {
+        client.post("http://10.0.2.2:45455/ApiTask.aspx?TripId=" + tripId, params, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 Toast.makeText(TasksActivity.this, "Tarefa criada com sucesso", Toast.LENGTH_SHORT).show();
@@ -229,48 +231,50 @@ public class TasksActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String filterOption = parent.getItemAtPosition(position).toString();
-//                applyFilter(filterOption);
+                if (!filterOption.isEmpty()) {
+                    applyFilter(filterOption);
+                }
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                //
+                applyFilter("Todas");
             }
         });
     }
 
-//    private void applyFilter(String filterOption) {
-//        List<Task> filteredList = new ArrayList<>();
-//
-//        for (Task task : taskList) {
-//            switch (filterOption) {
-//                case "Todas":
-//                    filteredList.add(task);
-//                    break;
-//
-//                case "A fazer":
-//                    if (task.getStatus().equals("A fazer")) {
-//                        filteredList.add(task);
-//                    }
-//                    break;
-//
-//                case "Em andamento":
-//                    if (task.getStatus().equals("Fazendo")) {
-//                        filteredList.add(task);
-//                    }
-//                    break;
-//
-//                case "Concluídas":
-//                    if (task.getStatus().equals("Feito")) {
-//                        filteredList.add(task);
-//                    }
-//                    break;
-//            }
-//        }
+    private void applyFilter(String filterOption) {
+        List<Task> filteredList = new ArrayList<>();
 
-//        taskAdapter.updateTasks(filteredList);
-//        Toast.makeText(this, "Filtrando por: " + filterOption, Toast.LENGTH_SHORT).show();
-//    }
+        if ("Todas".equals(filterOption)) {
+            filteredList.addAll(taskList);
+        } else {
+            for (Task task : taskList) {
+                switch (filterOption) {
+                    case "A fazer":
+                        if (task.getStatus() == 0) {
+                            filteredList.add(task);
+                        }
+                        break;
+
+                    case "Em andamento":
+                        if (task.getStatus() == 1) {
+                            filteredList.add(task);
+                        }
+                        break;
+
+                    case "Concluídas":
+                        if (task.getStatus() == 2) {
+                            filteredList.add(task);
+                        }
+                        break;
+                }
+            }
+        }
+
+        taskAdapter.updateTasks(filteredList);
+        Toast.makeText(this, "Filtrando por: " + filterOption, Toast.LENGTH_SHORT).show();
+    }
 
     public void logoutClick() {
         SharedPreferences.Editor editor = preferences.edit();

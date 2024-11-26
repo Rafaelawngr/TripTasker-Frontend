@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
         params.put("username", user);
         params.put("password", pwd);
 
-        client.post("http://10.0.2.2:45457/ApiLogin.aspx", params, new AsyncHttpResponseHandler() {
+        client.post("http://10.0.2.2:45455/ApiLogin.aspx", params, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
 
